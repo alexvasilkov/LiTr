@@ -14,8 +14,9 @@ import android.media.MediaFormat;
 import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import android.util.Log;
 import androidx.annotation.RequiresApi;
+
+import com.linkedin.android.litr.utils.LogUtils;
 
 import java.util.Arrays;
 
@@ -135,10 +136,10 @@ public class TrackTranscoderException extends MediaTransformationException {
                     }
                 }
             } else {
-                Log.e(TAG, "Failed to retrieve media codec info below API level 21.");
+                LogUtils.e(TAG, "Failed to retrieve media codec info below API level 21.");
             }
         } catch (IllegalStateException e) {
-            Log.e(TAG, "Failed to retrieve media codec info.", e);
+            LogUtils.e(TAG, "Failed to retrieve media codec info.", e);
         }
         return builder.toString();
     }
@@ -148,7 +149,7 @@ public class TrackTranscoderException extends MediaTransformationException {
         try {
             return convertMediaCodecInfoToString(mediaCodec.getCodecInfo());
         } catch (IllegalStateException e) {
-            Log.e(TAG, "Failed to retrieve media codec info.");
+            LogUtils.e(TAG, "Failed to retrieve media codec info.");
         }
         return "";
     }

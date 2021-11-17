@@ -16,7 +16,6 @@ import android.media.MediaFormat;
 import android.media.MediaMuxer;
 import android.net.Uri;
 import android.os.Build;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -46,6 +45,7 @@ import com.linkedin.android.litr.io.MockVideoMediaSource;
 import com.linkedin.android.litr.io.WavMediaTarget;
 import com.linkedin.android.litr.render.AudioRenderer;
 import com.linkedin.android.litr.render.GlVideoRenderer;
+import com.linkedin.android.litr.utils.LogUtils;
 import com.linkedin.android.litr.utils.TransformationUtil;
 
 import java.io.IOException;
@@ -152,7 +152,7 @@ public class TransformationPresenter {
                                        transformationListener,
                                        MediaTransformer.GRANULARITY_DEFAULT);
         } catch (MediaTransformationException ex) {
-            Log.e(TAG, "Exception when trying to perform track operation", ex);
+            LogUtils.e(TAG, "Exception when trying to perform track operation", ex);
         }
     }
 
@@ -225,7 +225,7 @@ public class TransformationPresenter {
                     transformationListener,
                     MediaTransformer.GRANULARITY_DEFAULT);
         } catch (MediaTransformationException ex) {
-            Log.e(TAG, "Exception when trying to perform track operation", ex);
+            LogUtils.e(TAG, "Exception when trying to perform track operation", ex);
         }
     }
 
@@ -316,7 +316,7 @@ public class TransformationPresenter {
                     transformationListener,
                     MediaTransformer.GRANULARITY_DEFAULT);
         } catch (MediaTransformationException ex) {
-            Log.e(TAG, "Exception when trying to perform track operation", ex);
+            LogUtils.e(TAG, "Exception when trying to perform track operation", ex);
         }
     }
 
@@ -475,7 +475,7 @@ public class TransformationPresenter {
                     transformationListener,
                     MediaTransformer.GRANULARITY_DEFAULT);
         } catch (MediaTransformationException ex) {
-            Log.e(TAG, "Exception when trying to perform track operation", ex);
+            LogUtils.e(TAG, "Exception when trying to perform track operation", ex);
         }
     }
 
@@ -551,7 +551,7 @@ public class TransformationPresenter {
                     transformationListener,
                     MediaTransformer.GRANULARITY_DEFAULT);
         } catch (MediaTransformationException ex) {
-            Log.e(TAG, "Exception when trying to perform track operation", ex);
+            LogUtils.e(TAG, "Exception when trying to perform track operation", ex);
         }
     }
 
@@ -613,7 +613,7 @@ public class TransformationPresenter {
                     transformationListener,
                     MediaTransformer.GRANULARITY_DEFAULT);
         } catch (MediaTransformationException ex) {
-            Log.e(TAG, "Exception when trying to transcode audio", ex);
+            LogUtils.e(TAG, "Exception when trying to transcode audio", ex);
         }
     }
 
@@ -715,7 +715,7 @@ public class TransformationPresenter {
                     }
                 }
             } catch (IOException ex) {
-                Log.e(TAG, "Failed to extract audio track metadata: " + ex);
+                LogUtils.e(TAG, "Failed to extract audio track metadata: " + ex);
             }
         }
 

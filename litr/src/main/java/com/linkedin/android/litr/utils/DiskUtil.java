@@ -10,7 +10,6 @@ package com.linkedin.android.litr.utils;
 import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
-import android.util.Log;
 
 public class DiskUtil {
     private static final String TAG = DiskUtil.class.getSimpleName();
@@ -33,7 +32,7 @@ public class DiskUtil {
                 return (long) statFs.getAvailableBlocks() * statFs.getBlockSize();
             }
         } catch (Exception e) {
-            Log.e(TAG, "Could not get Available Disk Space");
+            LogUtils.e(TAG, "Could not get Available Disk Space");
             return FREE_DISK_SPACE_CHECK_FAILED;
         }
     }

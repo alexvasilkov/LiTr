@@ -13,7 +13,6 @@ import android.media.MediaFormat;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,6 +23,7 @@ import com.linkedin.android.litr.demo.data.GenericTrackFormat;
 import com.linkedin.android.litr.demo.data.SourceMedia;
 import com.linkedin.android.litr.demo.data.TrimConfig;
 import com.linkedin.android.litr.demo.data.VideoTrackFormat;
+import com.linkedin.android.litr.utils.LogUtils;
 import com.linkedin.android.litr.utils.MediaFormatUtils;
 import com.linkedin.android.litr.utils.TranscoderUtils;
 
@@ -109,7 +109,7 @@ public class BaseTransformationFragment extends Fragment {
                 }
             }
         } catch (IOException ex) {
-            Log.e(TAG, "Failed to extract sourceMedia", ex);
+            LogUtils.e(TAG, "Failed to extract sourceMedia", ex);
         }
 
         sourceMedia.notifyChange();

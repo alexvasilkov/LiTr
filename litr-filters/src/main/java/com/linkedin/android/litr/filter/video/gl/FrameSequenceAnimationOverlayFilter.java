@@ -10,13 +10,13 @@ package com.linkedin.android.litr.filter.video.gl;
 import android.graphics.Bitmap;
 import android.graphics.RectF;
 import android.opengl.GLES20;
-import android.util.Log;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.linkedin.android.litr.filter.Transform;
+import com.linkedin.android.litr.utils.LogUtils;
 
 /**
  * An OpenGL filter that overlays a sprite animation (such as animated GIF) on top of all video frames.
@@ -63,7 +63,7 @@ public class FrameSequenceAnimationOverlayFilter extends BaseOverlayGlFilter {
             animationFrameProvider.advance();
             frameBitmap = animationFrameProvider.getNextFrame();
             if (frameBitmap == null) {
-                Log.e(TAG, "Error loading GIF frame " + frameIdx);
+                LogUtils.e(TAG, "Error loading GIF frame " + frameIdx);
                 continue;
             }
             int textureId = createOverlayTexture(frameBitmap);
