@@ -19,6 +19,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import com.linkedin.android.litr.exception.MediaTargetException;
+import com.linkedin.android.litr.utils.LogUtils;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
@@ -36,7 +37,7 @@ import static com.linkedin.android.litr.exception.MediaTargetException.Error.UNS
  */
 
 public class MediaMuxerMediaTarget implements MediaTarget {
-    private static final String TAG = MediaMuxerMediaTarget.class.getSimpleName();
+    private static final String TAG = "MediaMuxerMediaTarget";
 
     @VisibleForTesting LinkedList<MediaSample> queue;
     @VisibleForTesting boolean isStarted;
@@ -110,7 +111,7 @@ public class MediaMuxerMediaTarget implements MediaTarget {
         numberOfTracksToAdd++;
 
         if (numberOfTracksToAdd == trackCount) {
-            Log.d(TAG, "All tracks added, starting MediaMuxer, writing out " + queue.size() + " queued samples");
+            LogUtils.d(TAG, "All tracks added, starting MediaMuxer, writing out " + queue.size() + " queued samples");
 
             for (MediaFormat trackMediaFormat : mediaFormatsToAdd) {
                 mediaMuxer.addTrack(trackMediaFormat);
@@ -133,7 +134,7 @@ public class MediaMuxerMediaTarget implements MediaTarget {
     public void writeSampleData(int targetTrack, @NonNull ByteBuffer buffer, @NonNull MediaCodec.BufferInfo info) {
         if (isStarted) {
             if (buffer == null) {
-                Log.e(TAG, "Trying to write a null buffer, skipping");
+                LogUtils.e(TAG, "Trying to write a null buffer, skipping");
             } else {
                 mediaMuxer.writeSampleData(targetTrack, buffer, info);
             }

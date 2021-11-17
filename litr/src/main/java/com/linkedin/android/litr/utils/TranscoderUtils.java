@@ -33,7 +33,7 @@ public final class TranscoderUtils {
     @VisibleForTesting
     static final int COMMON_AUDIO_BITRATE_KBPS = 320;
 
-    private static final String TAG = TranscoderUtils.class.getSimpleName();
+    private static final String TAG = "TranscoderUtils";
 
     private static final int BITS_IN_KILO = 1000;
     private static final int BITS_IN_BYTE = 8;
@@ -61,7 +61,7 @@ public final class TranscoderUtils {
             long duration = getDuration(trackTransform);
 
             if (duration < 0) {
-                Log.d(TAG, "Track duration is not available, using maximum duration");
+                LogUtils.d(TAG, "Track duration is not available, using maximum duration");
                 duration = maxDurationUs;
             }
 
@@ -75,7 +75,7 @@ public final class TranscoderUtils {
             }
 
             if (bitrate < 0) {
-                Log.d(TAG, "Bitrate is not available, cannot use that track to estimate size");
+                LogUtils.d(TAG, "Bitrate is not available, cannot use that track to estimate size");
                 bitrate = 0;
             }
 
@@ -179,14 +179,14 @@ public final class TranscoderUtils {
                 long size = fileDescriptor != null ? fileDescriptor.getParcelFileDescriptor().getStatSize() : 0;
                 return size < 0 ? -1 : size;
             } catch (FileNotFoundException | IllegalStateException e) {
-                Log.e(TAG, "Unable to extract length from targetFile: " + uri, e);
+                LogUtils.e(TAG, "Unable to extract length from targetFile: " + uri, e);
                 return -1;
             } finally {
                 if (fileDescriptor != null) {
                     try {
                         fileDescriptor.close();
                     } catch (IOException e) {
-                        Log.e(TAG, "Unable to close file descriptor from targetFile: " + uri, e);
+                        LogUtils.e(TAG, "Unable to close file descriptor from targetFile: " + uri, e);
                     }
                 }
             }

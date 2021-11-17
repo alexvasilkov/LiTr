@@ -31,6 +31,8 @@ import javax.microedition.khronos.egl.EGLDisplay;
 import static javax.microedition.khronos.egl.EGL10.EGL_NONE;
 import static javax.microedition.khronos.egl.EGL10.EGL_NO_CONTEXT;
 
+import com.linkedin.android.litr.utils.LogUtils;
+
 class PreviewEglContextFactory implements GLSurfaceView.EGLContextFactory {
 
     private static final String TAG = "EContextFactory";
@@ -49,7 +51,7 @@ class PreviewEglContextFactory implements GLSurfaceView.EGLContextFactory {
     @Override
     public void destroyContext(final EGL10 egl, final EGLDisplay display, final EGLContext context) {
         if (!egl.eglDestroyContext(display, context)) {
-            Log.e(TAG, "display:" + display + " context: " + context);
+            LogUtils.e(TAG, "display:" + display + " context: " + context);
             throw new RuntimeException("eglDestroyContex" + egl.eglGetError());
         }
     }

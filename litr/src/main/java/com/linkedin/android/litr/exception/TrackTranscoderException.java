@@ -14,14 +14,15 @@ import android.media.MediaFormat;
 import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import android.util.Log;
 import androidx.annotation.RequiresApi;
+
+import com.linkedin.android.litr.utils.LogUtils;
 
 import java.util.Arrays;
 
 public class TrackTranscoderException extends MediaTransformationException {
 
-    private static final String TAG = TrackTranscoderException.class.getName();
+    private static final String TAG = "TrackTranscoderException";
     private static final String DECODER_FORMAT_NOT_FOUND_ERROR_TEXT = "Failed to create decoder codec.";
     private static final String DECODER_CONFIGURATION_ERROR_TEXT = "Failed to configure decoder codec.";
     private static final String ENCODER_FORMAT_NOT_FOUND_ERROR_TEXT = "Failed to create encoder codec.";
@@ -135,10 +136,10 @@ public class TrackTranscoderException extends MediaTransformationException {
                     }
                 }
             } else {
-                Log.e(TAG, "Failed to retrieve media codec info below API level 21.");
+                LogUtils.e(TAG, "Failed to retrieve media codec info below API level 21.");
             }
         } catch (IllegalStateException e) {
-            Log.e(TAG, "Failed to retrieve media codec info.", e);
+            LogUtils.e(TAG, "Failed to retrieve media codec info.", e);
         }
         return builder.toString();
     }
@@ -148,7 +149,7 @@ public class TrackTranscoderException extends MediaTransformationException {
         try {
             return convertMediaCodecInfoToString(mediaCodec.getCodecInfo());
         } catch (IllegalStateException e) {
-            Log.e(TAG, "Failed to retrieve media codec info.");
+            LogUtils.e(TAG, "Failed to retrieve media codec info.");
         }
         return "";
     }

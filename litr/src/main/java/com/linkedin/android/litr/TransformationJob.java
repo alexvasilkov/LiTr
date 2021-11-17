@@ -9,7 +9,6 @@ package com.linkedin.android.litr;
 
 import android.media.MediaExtractor;
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
@@ -25,6 +24,7 @@ import com.linkedin.android.litr.io.MediaTarget;
 import com.linkedin.android.litr.transcoder.TrackTranscoder;
 import com.linkedin.android.litr.transcoder.TrackTranscoderFactory;
 import com.linkedin.android.litr.utils.DiskUtil;
+import com.linkedin.android.litr.utils.LogUtils;
 import com.linkedin.android.litr.utils.TranscoderUtils;
 
 import java.io.File;
@@ -36,7 +36,7 @@ import static com.linkedin.android.litr.MediaTransformer.GRANULARITY_NONE;
 
 class TransformationJob implements Runnable {
 
-    private static final String TAG = TransformationJob.class.getSimpleName();
+    private static final String TAG = "TransformationJob";
 
     private static final float DEFAULT_SIZE_PADDING = 0.10f; // 10% padding
 
@@ -76,7 +76,7 @@ class TransformationJob implements Runnable {
         try {
             transform();
         } catch (RuntimeException e) {
-            Log.e(TAG, "Transformation job error", e);
+            LogUtils.e(TAG, "Transformation job error", e);
             Throwable cause = e.getCause();
             if (cause instanceof InterruptedException) {
                 cancel();
@@ -84,7 +84,7 @@ class TransformationJob implements Runnable {
                 error(e);
             }
         } catch (MediaTransformationException exception) {
-            Log.e(TAG, "Transformation job error", exception);
+            LogUtils.e(TAG, "Transformation job error", exception);
             exception.setJobId(jobId);
             error(exception);
         }

@@ -11,9 +11,7 @@ import android.content.Context;
 import android.media.MediaFormat;
 import android.media.MediaMuxer;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Looper;
-import android.util.Log;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,7 +28,7 @@ import com.linkedin.android.litr.io.MediaSource;
 import com.linkedin.android.litr.io.MediaTarget;
 import com.linkedin.android.litr.render.GlVideoRenderer;
 import com.linkedin.android.litr.render.Renderer;
-import com.linkedin.android.litr.utils.CodecUtils;
+import com.linkedin.android.litr.utils.LogUtils;
 import com.linkedin.android.litr.utils.TranscoderUtils;
 
 import java.util.ArrayList;
@@ -55,7 +53,7 @@ public class MediaTransformer {
 
     public static final int DEFAULT_KEY_FRAME_INTERVAL = 5;
 
-    private static final String TAG = MediaTransformer.class.getSimpleName();
+    private static final String TAG = "MediaTransformer";
     private static final int DEFAULT_FUTURE_MAP_SIZE = 10;
 
     private final Context context;
@@ -172,7 +170,7 @@ public class MediaTransformer {
                 }
 
                 if (mimeType == null) {
-                    Log.e(TAG, "Mime type is null for track " + track);
+                    LogUtils.e(TAG, "Mime type is null for track " + track);
                     continue;
                 }
 
@@ -247,7 +245,7 @@ public class MediaTransformer {
             }
 
             if (mimeType == null) {
-                Log.e(TAG, "Mime type is null for track " + track);
+                LogUtils.e(TAG, "Mime type is null for track " + track);
                 continue;
             }
 

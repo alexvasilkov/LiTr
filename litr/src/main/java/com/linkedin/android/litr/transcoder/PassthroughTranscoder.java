@@ -11,13 +11,13 @@ import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
 import android.os.Build;
-import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import com.linkedin.android.litr.exception.TrackTranscoderException;
 import com.linkedin.android.litr.io.MediaSource;
 import com.linkedin.android.litr.io.MediaTarget;
+import com.linkedin.android.litr.utils.LogUtils;
 
 import java.nio.ByteBuffer;
 
@@ -26,7 +26,7 @@ import java.nio.ByteBuffer;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PassthroughTranscoder extends TrackTranscoder {
-    private static final String TAG = PassthroughTranscoder.class.getSimpleName();
+    private static final String TAG = "PassthroughTranscoder";
 
     private static final int DEFAULT_BUFFER_SIZE = 1024 * 1024; // default to 1 Mb buffer
 
@@ -99,7 +99,7 @@ public class PassthroughTranscoder extends TrackTranscoder {
             outputBuffer.clear();
             progress = 1.0f;
             lastResult = RESULT_EOS_REACHED;
-            Log.d(TAG, "Reach EoS on input stream");
+            LogUtils.d(TAG, "Reach EoS on input stream");
         } else if (sampleTime >= sourceMediaSelection.getEnd()) {
             outputBuffer.clear();
             progress = 1.0f;
@@ -107,7 +107,7 @@ public class PassthroughTranscoder extends TrackTranscoder {
             mediaMuxer.writeSampleData(targetTrack, outputBuffer, outputBufferInfo);
             advanceToNextTrack();
             lastResult = RESULT_EOS_REACHED;
-            Log.d(TAG, "Reach selection end on input stream");
+            LogUtils.d(TAG, "Reach selection end on input stream");
         } else {
             if (sampleTime >= sourceMediaSelection.getStart()) {
                 int outputFlags = 0;

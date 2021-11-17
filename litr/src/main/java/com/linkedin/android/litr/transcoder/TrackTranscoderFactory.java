@@ -22,10 +22,11 @@ import com.linkedin.android.litr.io.MediaSource;
 import com.linkedin.android.litr.io.MediaTarget;
 import com.linkedin.android.litr.render.PassthroughSoftwareRenderer;
 import com.linkedin.android.litr.render.Renderer;
+import com.linkedin.android.litr.utils.LogUtils;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class TrackTranscoderFactory {
-    private static final String TAG = TrackTranscoderFactory.class.getSimpleName();
+    private static final String TAG = "TrackTranscoderFactory";
 
     /**
      * Create a proper transcoder for a given source track and target media format.
@@ -97,7 +98,7 @@ public class TrackTranscoderFactory {
                                             decoder,
                                             encoder);
         } else {
-            Log.i(TAG, "Unsupported track mime type: " + trackMimeType + ", will use passthrough transcoder");
+            LogUtils.i(TAG, "Unsupported track mime type: " + trackMimeType + ", will use passthrough transcoder");
             return new PassthroughTranscoder(mediaSource, sourceTrack, mediaTarget, targetTrack);
         }
     }

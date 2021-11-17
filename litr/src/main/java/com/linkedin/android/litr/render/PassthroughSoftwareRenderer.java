@@ -9,7 +9,6 @@ package com.linkedin.android.litr.render;
 
 import android.media.MediaCodec;
 import android.media.MediaFormat;
-import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
@@ -21,6 +20,7 @@ import com.linkedin.android.litr.codec.Frame;
 import com.linkedin.android.litr.resample.AudioResampler;
 import com.linkedin.android.litr.resample.DownsampleAudioResampler;
 import com.linkedin.android.litr.resample.PassThroughAudioResampler;
+import com.linkedin.android.litr.utils.LogUtils;
 import java.nio.ByteBuffer;
 import java.util.concurrent.TimeUnit;
 
@@ -84,7 +84,7 @@ public class PassthroughSoftwareRenderer implements Renderer {
     @Override
     public void renderFrame(@Nullable Frame inputFrame, long presentationTimeNs) {
         if (inputFrame == null || inputFrame.buffer == null) {
-            Log.e(TAG, "Null or empty input frame provided");
+            LogUtils.e(TAG, "Null or empty input frame provided");
             return;
         }
 
@@ -97,7 +97,7 @@ public class PassthroughSoftwareRenderer implements Renderer {
             if (tag >= 0) {
                 Frame outputFrame = encoder.getInputFrame(tag);
                 if (outputFrame == null) {
-                    Log.e(TAG, "No input frame returned by an encoder, dropping a frame");
+                    LogUtils.e(TAG, "No input frame returned by an encoder, dropping a frame");
                     return;
                 }
                 ByteBuffer outputBuffer = outputFrame.buffer;
@@ -132,10 +132,10 @@ public class PassthroughSoftwareRenderer implements Renderer {
             } else {
                 switch (tag) {
                     case MediaCodec.INFO_TRY_AGAIN_LATER:
-                        Log.e(TAG, "Encoder input frame timeout, dropping a frame");
+                        LogUtils.e(TAG, "Encoder input frame timeout, dropping a frame");
                         break;
                     default:
-                        Log.e(TAG, "Unhandled value " + tag + " when receiving decoded input frame");
+                        LogUtils.e(TAG, "Unhandled value " + tag + " when receiving decoded input frame");
                         break;
                 }
             }

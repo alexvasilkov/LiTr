@@ -11,17 +11,17 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.linkedin.android.litr.analytics.TrackTransformationInfo;
+import com.linkedin.android.litr.utils.LogUtils;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
 class MarshallingTransformationListener {
-    private static final String TAG = MarshallingTransformationListener.class.getSimpleName();
+    private static final String TAG = "MarshallingTransformationListener";
 
     private static final int EVENT_STARTED = 0;
     private static final int EVENT_COMPLETED = 1;
@@ -166,7 +166,7 @@ class MarshallingTransformationListener {
                     break;
                 }
                 default:
-                    Log.e(TAG, "Unknown event received: " + message.what);
+                    LogUtils.e(TAG, "Unknown event received: " + message.what);
             }
         }
     }
