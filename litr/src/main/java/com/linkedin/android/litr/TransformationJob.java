@@ -29,6 +29,7 @@ import com.linkedin.android.litr.utils.TranscoderUtils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -40,7 +41,7 @@ class TransformationJob implements Runnable {
 
     private static final float DEFAULT_SIZE_PADDING = 0.10f; // 10% padding
 
-    @VisibleForTesting List<TrackTranscoder> trackTranscoders;
+    @VisibleForTesting List<TrackTranscoder> trackTranscoders = Collections.emptyList();
     @VisibleForTesting float lastProgress;
     @VisibleForTesting int granularity;
 
@@ -87,6 +88,9 @@ class TransformationJob implements Runnable {
             LogUtils.e(TAG, "Transformation job error", exception);
             exception.setJobId(jobId);
             error(exception);
+        } catch (Throwable exception) {
+            LogUtils.e(TAG, "Transformation job error", exception);
+            error(exception);
         }
     }
 
@@ -119,14 +123,22 @@ class TransformationJob implements Runnable {
 
     @VisibleForTesting
     void cancel() {
-        marshallingTransformationListener.onCancelled(jobId, statsCollector.getStats());
-        release(false);
+        try {
+            release(false);
+            marshallingTransformationListener.onCancelled(jobId, statsCollector.getStats());
+        } catch (Throwable th) {
+            marshallingTransformationListener.onError(jobId, th, statsCollector.getStats());
+        }
     }
 
     @VisibleForTesting
     protected void error(@Nullable Throwable cause) {
-        marshallingTransformationListener.onError(jobId, cause, statsCollector.getStats());
-        release(false);
+        try {
+            release(false);
+            marshallingTransformationListener.onError(jobId, cause, statsCollector.getStats());
+        } catch (Throwable th) {
+            marshallingTransformationListener.onError(jobId, th, statsCollector.getStats());
+        }
     }
 
     @VisibleForTesting
