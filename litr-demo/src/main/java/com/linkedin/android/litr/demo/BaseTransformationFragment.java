@@ -13,6 +13,7 @@ import android.media.MediaFormat;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,7 +24,6 @@ import com.linkedin.android.litr.demo.data.GenericTrackFormat;
 import com.linkedin.android.litr.demo.data.SourceMedia;
 import com.linkedin.android.litr.demo.data.TrimConfig;
 import com.linkedin.android.litr.demo.data.VideoTrackFormat;
-import com.linkedin.android.litr.utils.LogUtils;
 import com.linkedin.android.litr.utils.MediaFormatUtils;
 import com.linkedin.android.litr.utils.TranscoderUtils;
 
@@ -39,8 +39,8 @@ public class BaseTransformationFragment extends Fragment {
     private static final int PICK_MEDIA = 42;
 
     private static final String KEY_ROTATION = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
-                                               ? MediaFormat.KEY_ROTATION
-                                               : "rotation-degrees";
+            ? MediaFormat.KEY_ROTATION
+            : "rotation-degrees";
 
     private MediaPickerListener mediaPickerListener;
 
@@ -109,7 +109,7 @@ public class BaseTransformationFragment extends Fragment {
                 }
             }
         } catch (IOException ex) {
-            LogUtils.e(TAG, "Failed to extract sourceMedia", ex);
+            Log.e(TAG, "Failed to extract sourceMedia", ex);
         }
 
         sourceMedia.notifyChange();
@@ -146,7 +146,7 @@ public class BaseTransformationFragment extends Fragment {
         intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
         startActivityForResult(Intent.createChooser(intent, getString(R.string.pick_media)),
-                               PICK_MEDIA);
+                PICK_MEDIA);
     }
 
     private long getMediaDuration(@NonNull Uri uri) {

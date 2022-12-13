@@ -9,9 +9,9 @@ import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
+import android.util.Log
 import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.WorkerThread
-import com.linkedin.android.litr.utils.LogUtils
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
@@ -81,7 +81,7 @@ class SharedMediaStoragePublisher @JvmOverloads constructor(
             } ?: throw IOException("Failed to insert video to MediaStore")
 
         }.onFailure {
-            LogUtils.e(TAG, "Error copying file to MediaStore", it)
+            Log.e(TAG, "Error copying file to MediaStore", it)
             contentUri?.let { copyFailedUri ->
                 resolver.delete(copyFailedUri, null, null)
             }
@@ -89,7 +89,7 @@ class SharedMediaStoragePublisher @JvmOverloads constructor(
 
         if (!keepOriginal) {
             runCatching { file.delete() }.onFailure {
-                LogUtils.e(TAG, "Unable to delete original video file $file from system", it)
+                Log.e(TAG, "Unable to delete original video file $file from system", it)
             }
         }
 
@@ -101,7 +101,7 @@ class SharedMediaStoragePublisher @JvmOverloads constructor(
                 runCatching {
                     resolver.update(it, values, null, null)
                 }.onFailure {
-                    LogUtils.e(TAG, "Could not update MediaStore for $file", it)
+                    Log.e(TAG, "Could not update MediaStore for $file", it)
                 }
             }
         }
