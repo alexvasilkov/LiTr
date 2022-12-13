@@ -14,12 +14,12 @@ import android.graphics.BitmapFactory;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.opengl.GLES20;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.linkedin.android.litr.filter.Transform;
+import com.linkedin.android.litr.utils.LogUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -119,11 +119,11 @@ public class BitmapOverlayFilter extends BaseOverlayGlFilter {
                     bitmap = BitmapFactory.decodeStream(inputStream, null, null);
                 }
             } catch (FileNotFoundException e) {
-                Log.e(TAG, "Unable to open overlay image Uri " + imageUri, e);
+                LogUtils.e(TAG, "Unable to open overlay image Uri " + imageUri, e);
             }
 
         } else {
-            Log.e(TAG, "Uri scheme is not supported: " + imageUri.getScheme());
+            LogUtils.e(TAG, "Uri scheme is not supported: " + imageUri.getScheme());
         }
 
         return bitmap;
