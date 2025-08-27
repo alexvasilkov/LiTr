@@ -8,11 +8,14 @@
 package com.linkedin.android.litr.io;
 
 import android.content.Context;
+import android.media.MediaDataSource;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+
 import com.linkedin.android.litr.exception.MediaSourceException;
 import com.linkedin.android.litr.utils.TranscoderUtils;
 
@@ -26,12 +29,12 @@ import static com.linkedin.android.litr.exception.MediaSourceException.Error.DAT
  */
 public class MediaExtractorMediaSource implements MediaSource {
 
-    private final MediaExtractor mediaExtractor;
+    private final MediaExtractor mediaExtractor = new MediaExtractor();
     private final MediaRange mediaRange;
 
+    private final long size;
     private int orientationHint;
-    private long size;
-    private final long duration;
+    private long duration;
 
     public MediaExtractorMediaSource(@NonNull Context context, @NonNull Uri uri) throws MediaSourceException {
         this(context, uri, new MediaRange(0, Long.MAX_VALUE));
@@ -40,24 +43,52 @@ public class MediaExtractorMediaSource implements MediaSource {
     public MediaExtractorMediaSource(@NonNull Context context, @NonNull Uri uri, @NonNull MediaRange mediaRange) throws MediaSourceException {
         this.mediaRange = mediaRange;
 
-        mediaExtractor = new MediaExtractor();
         MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
         try {
             mediaExtractor.setDataSource(context, uri, null);
+            size = TranscoderUtils.getSize(context, uri);
             mediaMetadataRetriever.setDataSource(context, uri);
-        } catch (IOException ex) {
-            releaseQuietly(mediaMetadataRetriever);
+            setOrientationFrom(mediaMetadataRetriever);
+            setDurationFrom(mediaMetadataRetriever);
+        } catch (Throwable ex) {
             throw new MediaSourceException(DATA_SOURCE, uri, ex);
+        } finally {
+            releaseQuietly(mediaMetadataRetriever);
         }
-        String rotation = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
+    }
+
+    @RequiresApi(23)
+    public MediaExtractorMediaSource(@NonNull MediaDataSource source, @NonNull MediaRange mediaRange) throws MediaSourceException {
+        this.mediaRange = mediaRange;
+
+        MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
+        try {
+            mediaExtractor.setDataSource(source);
+            size = source.getSize();
+            mediaMetadataRetriever.setDataSource(source);
+            setOrientationFrom(mediaMetadataRetriever);
+            setDurationFrom(mediaMetadataRetriever);
+        } catch (Throwable ex) {
+            try {
+                source.close();
+            } catch (IOException ignored) {
+            }
+            throw new MediaSourceException(DATA_SOURCE, null, ex);
+        } finally {
+            releaseQuietly(mediaMetadataRetriever);
+        }
+    }
+
+    private void setOrientationFrom(MediaMetadataRetriever retriever) {
+        String rotation = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
         if (rotation != null) {
             orientationHint = Integer.parseInt(rotation);
         }
-        String durationStr = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-        duration =  (durationStr != null) ? Long.parseLong(durationStr) : -1L;
-        size = TranscoderUtils.getSize(context, uri);
-        // Release unused anymore MediaMetadataRetriever instance
-        releaseQuietly(mediaMetadataRetriever);
+    }
+
+    private void setDurationFrom(MediaMetadataRetriever retriever) {
+        String durationStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+        duration = (durationStr != null) ? Long.parseLong(durationStr) : -1L;
     }
 
     @Override

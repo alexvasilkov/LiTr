@@ -9,7 +9,6 @@ package com.linkedin.android.litr.transcoder;
 
 import android.media.MediaCodec;
 import android.media.MediaFormat;
-import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -24,6 +23,7 @@ import com.linkedin.android.litr.render.DefaultFrameDropper;
 import com.linkedin.android.litr.render.FrameDropper;
 import com.linkedin.android.litr.render.GlVideoRenderer;
 import com.linkedin.android.litr.render.Renderer;
+import com.linkedin.android.litr.utils.LogUtils;
 import com.linkedin.android.litr.utils.MediaFormatUtils;
 
 import java.util.concurrent.TimeUnit;
@@ -179,25 +179,25 @@ public class VideoTrackTranscoder extends TrackTranscoder {
                     frame.bufferInfo.set(0, 0, -1, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
                     decoder.queueInputFrame(frame);
                     extractFrameResult = RESULT_EOS_REACHED;
-                    Log.d(TAG, "EoS reached on the input stream");
+                    LogUtils.d(TAG, "EoS reached on the input stream");
                 } else if (sampleTime >= sourceMediaSelection.getEnd()) {
                     frame.bufferInfo.set(0, 0, -1, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
                     decoder.queueInputFrame(frame);
                     extractFrameResult = advanceToNextTrack();
-                    Log.d(TAG, "Selection end reached on the input stream");
+                    LogUtils.d(TAG, "Selection end reached on the input stream");
                 } else {
                     frame.bufferInfo.set(0, bytesRead, sampleTime, sampleFlags);
                     decoder.queueInputFrame(frame);
                     mediaSource.advance();
-                    //Log.d(TAG, "Sample time: " + sampleTime + ", source bytes read: " + bytesRead);
+                    // LogUtils.d(TAG, "Sample time: " + sampleTime + ", source bytes read: " + bytesRead);
                 }
             } else {
                 switch (tag) {
                     case MediaCodec.INFO_TRY_AGAIN_LATER:
-                        //Log.d(TAG, "Will try getting decoder input buffer later");
+                        // LogUtils.d(TAG, "Will try getting decoder input buffer later");
                         break;
                     default:
-                        Log.e(TAG, "Unhandled value " + tag + " when decoding an input frame");
+                        LogUtils.e(TAG, "Unhandled value " + tag + " when decoding an input frame");
                         break;
                 }
             }
@@ -216,7 +216,7 @@ public class VideoTrackTranscoder extends TrackTranscoder {
                 throw new TrackTranscoderException(TrackTranscoderException.Error.NO_FRAME_AVAILABLE);
             }
             if ((frame.bufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
-                Log.d(TAG, "EoS on decoder output stream");
+                LogUtils.d(TAG, "EoS on decoder output stream");
                 decoder.releaseOutputFrame(tag, false);
                 encoder.signalEndOfInputStream();
                 decodeFrameResult = RESULT_EOS_REACHED;
@@ -236,15 +236,15 @@ public class VideoTrackTranscoder extends TrackTranscoder {
         } else {
             switch (tag) {
                 case MediaCodec.INFO_TRY_AGAIN_LATER:
-                    // Log.d(TAG, "Will try getting decoder output later");
+                    // LogUtils.d(TAG, "Will try getting decoder output later");
                     break;
                 case MediaCodec.INFO_OUTPUT_FORMAT_CHANGED:
                     sourceVideoFormat = addMissingMetadata(sourceVideoFormat, decoder.getOutputFormat());
                     renderer.onMediaFormatChanged(sourceVideoFormat, targetVideoFormat);
-                    Log.d(TAG, "Decoder output format changed: " + sourceVideoFormat);
+                    LogUtils.d(TAG, "Decoder output format changed: " + sourceVideoFormat);
                     break;
                 default:
-                    Log.e(TAG, "Unhandled value " + tag + " when receiving decoded input frame");
+                    LogUtils.e(TAG, "Unhandled value " + tag + " when receiving decoded input frame");
                     break;
             }
         }
@@ -263,7 +263,7 @@ public class VideoTrackTranscoder extends TrackTranscoder {
             }
 
             if ((frame.bufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
-                Log.d(TAG, "Encoder produced EoS, we are done");
+                LogUtils.d(TAG, "Encoder produced EoS, we are done");
                 progress = 1.0f;
                 encodeFrameResult = RESULT_EOS_REACHED;
             } else if (frame.bufferInfo.size > 0
@@ -278,7 +278,7 @@ public class VideoTrackTranscoder extends TrackTranscoder {
         } else {
             switch (index) {
                 case MediaCodec.INFO_TRY_AGAIN_LATER:
-                    // Log.d(TAG, "Will try getting encoder output buffer later");
+                    // LogUtils.d(TAG, "Will try getting encoder output buffer later");
                     break;
                 case MediaCodec.INFO_OUTPUT_FORMAT_CHANGED:
                     // TODO for now, we assume that we only get one media format as a first buffer
@@ -290,10 +290,10 @@ public class VideoTrackTranscoder extends TrackTranscoder {
                         renderer.onMediaFormatChanged(sourceVideoFormat, targetVideoFormat);
                     }
                     encodeFrameResult = RESULT_OUTPUT_MEDIA_FORMAT_CHANGED;
-                    Log.d(TAG, "Encoder output format received " + outputMediaFormat);
+                    LogUtils.d(TAG, "Encoder output format received " + outputMediaFormat);
                     break;
                 default:
-                    Log.e(TAG, "Unhandled value " + index + " when receiving encoded output frame");
+                    LogUtils.e(TAG, "Unhandled value " + index + " when receiving encoded output frame");
                     break;
             }
         }

@@ -9,7 +9,6 @@ package com.linkedin.android.litr;
 
 import android.media.MediaExtractor;
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
@@ -25,10 +24,12 @@ import com.linkedin.android.litr.io.MediaTarget;
 import com.linkedin.android.litr.transcoder.TrackTranscoder;
 import com.linkedin.android.litr.transcoder.TrackTranscoderFactory;
 import com.linkedin.android.litr.utils.DiskUtil;
+import com.linkedin.android.litr.utils.LogUtils;
 import com.linkedin.android.litr.utils.TranscoderUtils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -40,7 +41,7 @@ class TransformationJob implements Runnable {
 
     private static final float DEFAULT_SIZE_PADDING = 0.10f; // 10% padding
 
-    @VisibleForTesting List<TrackTranscoder> trackTranscoders;
+    @VisibleForTesting List<TrackTranscoder> trackTranscoders = Collections.emptyList();
     @VisibleForTesting float lastProgress;
     @VisibleForTesting int granularity;
 
@@ -76,7 +77,7 @@ class TransformationJob implements Runnable {
         try {
             transform();
         } catch (RuntimeException e) {
-            Log.e(TAG, "Transformation job error", e);
+            LogUtils.e(TAG, "Transformation job error", e);
             Throwable cause = e.getCause();
             if (cause instanceof InterruptedException) {
                 cancel();
@@ -84,8 +85,11 @@ class TransformationJob implements Runnable {
                 error(e);
             }
         } catch (MediaTransformationException exception) {
-            Log.e(TAG, "Transformation job error", exception);
+            LogUtils.e(TAG, "Transformation job error", exception);
             exception.setJobId(jobId);
+            error(exception);
+        } catch (Throwable exception) {
+            LogUtils.e(TAG, "Transformation job error", exception);
             error(exception);
         }
     }
@@ -127,8 +131,8 @@ class TransformationJob implements Runnable {
             updateTargetFormatStats();
             release();
             deleteOutputFiles();
-        } catch (Exception ex) {
-            Log.e(TAG, "cancel: ", ex);
+        } catch (Throwable ex) {
+            LogUtils.e(TAG, "cancel: ", ex);
         } finally {
             marshallingTransformationListener.onCancelled(jobId, statsCollector.getStats());
         }
@@ -140,8 +144,8 @@ class TransformationJob implements Runnable {
             updateTargetFormatStats();
             release();
             deleteOutputFiles();
-        } catch (Exception ex) {
-            Log.e(TAG, "error: ", ex);
+        } catch (Throwable ex) {
+            LogUtils.e(TAG, "error: ", ex);
         } finally {
             marshallingTransformationListener.onError(jobId, cause, statsCollector.getStats());
         }
@@ -258,7 +262,7 @@ class TransformationJob implements Runnable {
                     TrackTranscoder trackTranscoder = trackTranscoders.get(track);
                     trackTranscoder.stop();
                 } catch (Exception ex){
-                    Log.e(TAG, "release: Exception when stopping track transcoder: ", ex);
+                    LogUtils.e(TAG, "release: Exception when stopping track transcoder: ", ex);
                 }
             }
         }
@@ -275,7 +279,7 @@ class TransformationJob implements Runnable {
             try {
                 mediaSource.release();
             } catch (Exception ex) {
-                Log.e(TAG, "release: Exception when releasing media source: ", ex);
+                LogUtils.e(TAG, "release: Exception when releasing media source: ", ex);
             }
         }
 
@@ -295,7 +299,7 @@ class TransformationJob implements Runnable {
                         new File(outputFilePath).delete();
                     }
                 } catch (Exception ex) {
-                    Log.e(TAG, "deleteOutputFiles: ", ex);
+                    LogUtils.e(TAG, "deleteOutputFiles: ", ex);
                 }
             }
         }

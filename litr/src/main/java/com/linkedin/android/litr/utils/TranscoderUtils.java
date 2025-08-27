@@ -12,7 +12,6 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.media.MediaFormat;
 import android.net.Uri;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -61,7 +60,7 @@ public final class TranscoderUtils {
             long duration = getDuration(trackTransform);
 
             if (duration < 0) {
-                Log.d(TAG, "Track duration is not available, using maximum duration");
+                LogUtils.d(TAG, "Track duration is not available, using maximum duration");
                 duration = maxDurationUs;
             }
 
@@ -75,7 +74,7 @@ public final class TranscoderUtils {
             }
 
             if (bitrate < 0) {
-                Log.d(TAG, "Bitrate is not available, cannot use that track to estimate size");
+                LogUtils.d(TAG, "Bitrate is not available, cannot use that track to estimate size");
                 bitrate = 0;
             }
 
@@ -199,14 +198,14 @@ public final class TranscoderUtils {
                 long size = fileDescriptor != null ? fileDescriptor.getParcelFileDescriptor().getStatSize() : 0;
                 return size < 0 ? -1 : size;
             } catch (FileNotFoundException | IllegalStateException e) {
-                Log.e(TAG, "Unable to extract length from targetFile: " + uri, e);
+                LogUtils.e(TAG, "Unable to extract length from targetFile: " + uri, e);
                 return -1;
             } finally {
                 if (fileDescriptor != null) {
                     try {
                         fileDescriptor.close();
                     } catch (IOException e) {
-                        Log.e(TAG, "Unable to close file descriptor from targetFile: " + uri, e);
+                        LogUtils.e(TAG, "Unable to close file descriptor from targetFile: " + uri, e);
                     }
                 }
             }

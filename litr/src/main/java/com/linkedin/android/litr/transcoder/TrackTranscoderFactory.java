@@ -9,7 +9,6 @@ package com.linkedin.android.litr.transcoder;
 
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,6 +21,7 @@ import com.linkedin.android.litr.io.MediaSource;
 import com.linkedin.android.litr.io.MediaTarget;
 import com.linkedin.android.litr.render.AudioRenderer;
 import com.linkedin.android.litr.render.Renderer;
+import com.linkedin.android.litr.utils.LogUtils;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class TrackTranscoderFactory {
@@ -97,7 +97,7 @@ public class TrackTranscoderFactory {
                                             decoder,
                                             encoder);
         } else {
-            Log.i(TAG, "Unsupported track mime type: " + trackMimeType + ", will use passthrough transcoder");
+            LogUtils.i(TAG, "Unsupported track mime type: " + trackMimeType + ", will use passthrough transcoder");
             return new PassthroughTranscoder(mediaSource, sourceTrack, mediaTarget, targetTrack);
         }
     }

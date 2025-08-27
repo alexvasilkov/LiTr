@@ -14,7 +14,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Looper;
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
@@ -31,6 +30,7 @@ import com.linkedin.android.litr.io.MediaSource;
 import com.linkedin.android.litr.io.MediaTarget;
 import com.linkedin.android.litr.render.AudioRenderer;
 import com.linkedin.android.litr.render.GlVideoRenderer;
+import com.linkedin.android.litr.utils.LogUtils;
 import com.linkedin.android.litr.utils.MediaFormatUtils;
 import com.linkedin.android.litr.utils.TranscoderUtils;
 
@@ -364,7 +364,7 @@ public class MediaTransformer {
 
     private boolean shouldIncludeTrack(@Nullable String mimeType, boolean removeAudio, boolean removeMetadata) {
         if (mimeType == null) {
-            Log.e(TAG, "Mime type is null for track ");
+            LogUtils.e(TAG, "Mime type is null for track ");
             return false;
         }
 

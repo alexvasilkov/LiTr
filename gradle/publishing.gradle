@@ -22,7 +22,7 @@ afterEvaluate {
     publishing {
         publications {
             maven(MavenPublication) {
-                from components.release
+//                from components.release
 
                 pom {
                     name = 'LiTr'

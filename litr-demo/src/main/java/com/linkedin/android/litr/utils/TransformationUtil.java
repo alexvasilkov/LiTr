@@ -17,7 +17,6 @@ import android.os.Build;
 import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.bumptech.glide.gifdecoder.GifDecoder;
@@ -88,7 +87,7 @@ public class TransformationUtil {
                 filter = new BitmapOverlayFilter(context.getApplicationContext(), overlayUri, transform);
             }
         } catch (IOException ex) {
-            Log.e(TAG, "Failed to create a GlFilter", ex);
+            LogUtils.e(TAG, "Failed to create a GlFilter", ex);
         }
 
         return filter;

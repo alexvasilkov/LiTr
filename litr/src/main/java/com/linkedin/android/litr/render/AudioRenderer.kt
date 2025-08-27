@@ -9,12 +9,12 @@ package com.linkedin.android.litr.render
 
 import android.media.MediaCodec
 import android.media.MediaFormat
-import android.util.Log
 import android.view.Surface
 import com.linkedin.android.litr.codec.Encoder
 import com.linkedin.android.litr.codec.Frame
 import com.linkedin.android.litr.filter.BufferFilter
 import com.linkedin.android.litr.utils.ByteBufferPool
+import com.linkedin.android.litr.utils.LogUtils
 import com.linkedin.android.litr.utils.MediaFormatUtils
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.atomic.AtomicBoolean
@@ -126,7 +126,7 @@ class AudioRenderer @JvmOverloads constructor(
                     when {
                         tag >= 0 -> renderFrame(tag, inputFrame)
                         tag == MediaCodec.INFO_TRY_AGAIN_LATER -> {} // do nothing, will try later
-                        else -> Log.e(TAG, "Unhandled value $tag when receiving decoded input frame")
+                        else -> LogUtils.e(TAG, "Unhandled value $tag when receiving decoded input frame")
                     }
                 }
             }

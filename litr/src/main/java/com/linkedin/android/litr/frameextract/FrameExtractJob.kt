@@ -9,10 +9,10 @@ package com.linkedin.android.litr.frameextract
 
 import android.graphics.Bitmap
 import android.media.ThumbnailUtils
-import android.util.Log
 import com.linkedin.android.litr.ExperimentalFrameExtractorApi
 import com.linkedin.android.litr.frameextract.behaviors.FrameExtractBehavior
 import com.linkedin.android.litr.frameextract.behaviors.FrameExtractBehaviorFrameListener
+import com.linkedin.android.litr.utils.LogUtils
 
 /**
  * Provides the request lifecycle for extracting video frames. The specifics of extraction work are delegated to [FrameExtractBehavior]s.
@@ -49,7 +49,7 @@ internal class FrameExtractJob constructor(
         try {
             extract()
         } catch (e: RuntimeException) {
-            Log.e(TAG, "FrameExtractJob error", e)
+            LogUtils.e(TAG, "FrameExtractJob error", e)
             when (e.cause) {
                 is InterruptedException -> {
                     listener?.onCancelled(jobId, params.timestampUs)
@@ -105,7 +105,7 @@ internal class FrameExtractJob constructor(
     }
 
     private fun error(cause: Throwable?) {
-        Log.e(TAG, "Error encountered while extracting frames", cause)
+        LogUtils.e(TAG, "Error encountered while extracting frames", cause)
         listener?.onError(jobId, params.timestampUs, cause)
     }
 

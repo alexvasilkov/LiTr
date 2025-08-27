@@ -39,8 +39,8 @@ public class BaseTransformationFragment extends Fragment {
     private static final int PICK_MEDIA = 42;
 
     private static final String KEY_ROTATION = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
-                                               ? MediaFormat.KEY_ROTATION
-                                               : "rotation-degrees";
+            ? MediaFormat.KEY_ROTATION
+            : "rotation-degrees";
 
     private MediaPickerListener mediaPickerListener;
 
@@ -146,7 +146,7 @@ public class BaseTransformationFragment extends Fragment {
         intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
         startActivityForResult(Intent.createChooser(intent, getString(R.string.pick_media)),
-                               PICK_MEDIA);
+                PICK_MEDIA);
     }
 
     private long getMediaDuration(@NonNull Uri uri) {

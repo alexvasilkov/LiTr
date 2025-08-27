@@ -11,12 +11,12 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import com.linkedin.android.litr.ExperimentalFrameExtractorApi
 import com.linkedin.android.litr.frameextract.behaviors.FrameExtractBehavior
 import com.linkedin.android.litr.frameextract.behaviors.MediaMetadataExtractBehavior
 import com.linkedin.android.litr.frameextract.queue.ComparableFutureTask
 import com.linkedin.android.litr.frameextract.queue.PriorityExecutorUtil
+import com.linkedin.android.litr.utils.LogUtils
 
 /**
  * Provides the entry point for single frame extraction.
@@ -51,7 +51,7 @@ class VideoFrameExtractor @JvmOverloads constructor(
      */
     fun extract(requestId: String, params: FrameExtractParameters, listener: FrameExtractListener?) {
         if (activeJobMap.containsKey(requestId)) {
-            Log.w(TAG, "Request with ID $requestId already exists")
+            LogUtils.e(TAG, "Request with ID $requestId already exists")
             return
         }
         val task = FrameExtractJob(requestId, params, extractBehavior, rootListener)
