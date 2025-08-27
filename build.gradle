@@ -1,12 +1,12 @@
 buildscript {
-    ext.kotlin_version = '1.7.20'
+    ext.kotlin_version = '2.2.10'
 
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.3.1'
+        classpath 'com.android.tools.build:gradle:8.10.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -21,9 +21,31 @@ allprojects {
     version = VERSION_NAME
 }
 
+subprojects {
+    // Manually set target java version instead of using toolchains.
+    // See this: https://jakewharton.com/gradle-toolchains-are-rarely-a-good-idea/
+    // And this: https://jakewharton.com/kotlins-jdk-release-compatibility-flag/
+    afterEvaluate {
+        def javaVersion = JavaVersion.VERSION_1_8.toString()
+        def javaVersionForKotlin = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8
+        extensions.findByType(org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension)?.with {
+            compilerOptions.jvmTarget.set(javaVersionForKotlin)
+        }
+        extensions.findByType(org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension)?.with {
+            compilerOptions.jvmTarget = javaVersionForKotlin
+            compilerOptions.freeCompilerArgs.add("-Xjdk-release=$javaVersion")
+        }
+        tasks.withType(JavaCompile).configureEach {
+            sourceCompatibility = javaVersion
+            targetCompatibility = javaVersion
+            options.compilerArgs.add("-Xlint:-options") // Suppressing "Java 8 is deprecated" warnings
+        }
+    }
+}
+
+
 ext {
-    minSdkVersion = 18
+    minSdkVersion = 21
     targetSdkVersion = 30
     compileSdkVersion = 33
-    buildToolsVersion = "33.0.1"
 }

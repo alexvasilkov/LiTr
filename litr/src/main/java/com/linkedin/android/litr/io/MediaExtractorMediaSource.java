@@ -32,9 +32,9 @@ public class MediaExtractorMediaSource implements MediaSource {
     private final MediaExtractor mediaExtractor = new MediaExtractor();
     private final MediaRange mediaRange;
 
-    private int orientationHint;
     private final long size;
-    private final long duration;
+    private int orientationHint;
+    private long duration;
 
     public MediaExtractorMediaSource(@NonNull Context context, @NonNull Uri uri) throws MediaSourceException {
         this(context, uri, new MediaRange(0, Long.MAX_VALUE));

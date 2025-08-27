@@ -6,7 +6,6 @@ plugins {
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
 
     namespace 'com.linkedin.android.litr.demo'
 
