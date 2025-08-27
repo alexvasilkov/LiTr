@@ -18,8 +18,14 @@
     <string name="demo_case_transcode_audio">Transcode Audio</string>
     <string name="demo_case_extract_frames">Extract Video Frames</string>
     <string name="demo_case_transcode_to_vp9">Transcode To VP9</string>
+    <string name="demo_case_audio_record">Record Audio</string>
+    <string name="demo_case_camera_record">Record Camera (via Camera2)</string>
+    <string name="demo_case_native_muxer_transcode">Native Muxer (Transcode)</string>
+    <string name="demo_case_native_muxer_camera">Native Muxer (Camera)</string>
 
     <string name="error_vp9_not_supported">VP8/VP9 is not supported</string>
+    <string name="error_marshmallow_or_newer_required">Android Marshmallow or newer required</string>
+    <string name="ok">OK</string>
 
     <string name="include">Include</string>
     <string name="overlay">Overlay</string>
@@ -37,7 +43,7 @@
     <string name="source_path" formatted="true">Uri: %s</string>
     <string name="size" formatted="true">Size: %.2f MB</string>
 
-    <string name="track_info" formatted="true">Track %d: %s</string>
+    <string name="track_info" formatted="true">Track %1$d: %2$s</string>
 
     <string name="default_video_mime_type">video/avc</string>
 
@@ -47,6 +53,9 @@
     <string name="pick_background">Pick Background</string>
     <string name="transcode">Transcode</string>
     <string name="cancel">Cancel</string>
+
+    <string name="record">Record</string>
+    <string name="stop">Stop</string>
 
     <string name="target_path" formatted="true">Target: %s</string>
     <string name="play">Play</string>

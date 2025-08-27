@@ -7,6 +7,23 @@
  */
 package com.linkedin.android.litr.transcoder;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import android.media.MediaCodec;
 import android.media.MediaFormat;
 import android.view.Surface;
@@ -27,23 +44,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.nio.ByteBuffer;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class VideoTrackTranscoderShould {
     private static final int VIDEO_TRACK = 0;
@@ -91,6 +91,9 @@ public class VideoTrackTranscoderShould {
         sampleFrame = new Frame(BUFFER_INDEX, buffer, bufferInfo);
         fullMediaRange = new MediaRange(0, Long.MAX_VALUE);
         trimmedMediaRange = new MediaRange(SELECTION_START, SELECTION_END);
+
+        when(sourceMediaFormat.containsKey(MediaFormat.KEY_DURATION)).thenReturn(true);
+        when(sourceMediaFormat.getLong(MediaFormat.KEY_DURATION)).thenReturn(DURATION);
 
         doReturn(sourceMediaFormat).when(mediaSource).getTrackFormat(anyInt());
         doReturn(surface).when(encoder).createInputSurface();
@@ -428,7 +431,9 @@ public class VideoTrackTranscoderShould {
         videoTrackTranscoder.lastDecodeFrameResult = TrackTranscoder.RESULT_EOS_REACHED;
         videoTrackTranscoder.lastEncodeFrameResult = TrackTranscoder.RESULT_FRAME_PROCESSED;
 
-        MediaFormat encoderMediaFormat = new MediaFormat();
+        MediaFormat encoderMediaFormat = mock(MediaFormat.class);
+        when(encoderMediaFormat.containsKey(MediaFormat.KEY_DURATION)).thenReturn(false);
+
         doReturn(MediaCodec.INFO_OUTPUT_FORMAT_CHANGED).when(encoder).dequeueOutputFrame(anyLong());
         doReturn(encoderMediaFormat).when(encoder).getOutputFormat();
         doReturn(VIDEO_TRACK).when(mediaTarget).addTrack(any(MediaFormat.class), anyInt());
@@ -438,6 +443,7 @@ public class VideoTrackTranscoderShould {
         ArgumentCaptor<MediaFormat> mediaFormatArgumentCaptor = ArgumentCaptor.forClass(MediaFormat.class);
         verify(mediaTarget).addTrack(mediaFormatArgumentCaptor.capture(), eq(VIDEO_TRACK));
         assertThat(mediaFormatArgumentCaptor.getValue(), is(encoderMediaFormat));
+        verify(encoderMediaFormat).setLong(MediaFormat.KEY_DURATION, DURATION);
 
         assertThat(videoTrackTranscoder.targetTrack, is(VIDEO_TRACK));
         assertThat(result, is(TrackTranscoder.RESULT_OUTPUT_MEDIA_FORMAT_CHANGED));
@@ -521,8 +527,6 @@ public class VideoTrackTranscoderShould {
 
     @Test
     public void adjustDurationToMediaSelection() throws Exception {
-        when(sourceMediaFormat.containsKey(MediaFormat.KEY_DURATION)).thenReturn(true);
-        when(sourceMediaFormat.getLong(MediaFormat.KEY_DURATION)).thenReturn(DURATION);
         when(mediaSource.getSelection()).thenReturn(trimmedMediaRange);
 
         VideoTrackTranscoder videoTrackTranscoder = new VideoTrackTranscoder(
@@ -603,7 +607,7 @@ public class VideoTrackTranscoderShould {
     }
 
     @Test
-    public void notDecodeFrameAndAdvanceToOtherTrackAndSendEosWhenFrameAfterSelectionEnd() throws Exception {
+    public void notDecodeFrameAndAdvanceToOtherTrackAndSendEorWhenFrameAfterSelectionEnd() throws Exception {
         int tag = 1;
 
         when(decoder.dequeueInputFrame(anyLong())).thenReturn(tag);
@@ -633,7 +637,95 @@ public class VideoTrackTranscoderShould {
 
         verify(decoder).queueInputFrame(sampleFrame);
         verify(sampleFrame.bufferInfo).set(0, 0, -1, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+        assertThat(videoTrackTranscoder.lastExtractFrameResult, is(VideoTrackTranscoder.RESULT_END_OF_RANGE_REACHED));
+    }
+
+    @Test
+    public void notDecodeFrameAndAdvanceToEndOfTrackAndSendEosWhenFrameAfterSelectionEnd() throws Exception {
+        int tag = 1;
+
+        when(decoder.dequeueInputFrame(anyLong())).thenReturn(tag);
+        when(decoder.getInputFrame(tag)).thenReturn(sampleFrame);
+        when(mediaSource.getSelection()).thenReturn(trimmedMediaRange);
+        when(mediaSource.getSampleTime()).thenReturn(SELECTION_END + 1);
+        when(mediaSource.getSampleFlags())
+                .thenReturn(0)
+                .thenReturn(MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+        when(mediaSource.readSampleData(sampleFrame.buffer, 0)).thenReturn(BUFFER_SIZE);
+        when(mediaSource.getSampleTrackIndex()).thenReturn(VIDEO_TRACK);
+
+        VideoTrackTranscoder videoTrackTranscoder = new VideoTrackTranscoder(
+                mediaSource,
+                VIDEO_TRACK,
+                mediaTarget,
+                VIDEO_TRACK,
+                targetVideoFormat,
+                renderer,
+                decoder,
+                encoder);
+        videoTrackTranscoder.lastDecodeFrameResult = TrackTranscoder.RESULT_EOS_REACHED;
+        videoTrackTranscoder.lastEncodeFrameResult = TrackTranscoder.RESULT_EOS_REACHED;
+
+        videoTrackTranscoder.processNextFrame();
+
+        verify(decoder).queueInputFrame(sampleFrame);
+        verify(sampleFrame.bufferInfo).set(0, 0, -1, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
         assertThat(videoTrackTranscoder.lastExtractFrameResult, is(VideoTrackTranscoder.RESULT_EOS_REACHED));
+    }
+
+    @Test
+    public void advanceToOtherTrackWhenEndOfRangeReached() throws Exception {
+        when(mediaSource.getSampleTrackIndex())
+                .thenReturn(VIDEO_TRACK)
+                .thenReturn(VIDEO_TRACK)
+                .thenReturn(AUDIO_TRACK);
+
+        VideoTrackTranscoder videoTrackTranscoder = new VideoTrackTranscoder(
+                mediaSource,
+                VIDEO_TRACK,
+                mediaTarget,
+                VIDEO_TRACK,
+                targetVideoFormat,
+                renderer,
+                decoder,
+                encoder);
+        videoTrackTranscoder.lastExtractFrameResult = TrackTranscoder.RESULT_END_OF_RANGE_REACHED;
+        videoTrackTranscoder.lastDecodeFrameResult = TrackTranscoder.RESULT_EOS_REACHED;
+        videoTrackTranscoder.lastEncodeFrameResult = TrackTranscoder.RESULT_EOS_REACHED;
+
+        int result = videoTrackTranscoder.processNextFrame();
+
+        verify(decoder, never()).dequeueInputFrame(anyLong());
+        verify(decoder, never()).getInputFrame(anyInt());
+        verify(mediaSource, never()).readSampleData(any(), anyInt());
+        assertThat(videoTrackTranscoder.lastExtractFrameResult, is(TrackTranscoder.RESULT_END_OF_RANGE_REACHED));
+        assertThat(result, is(TrackTranscoder.RESULT_EOS_REACHED));
+    }
+
+    @Test
+    public void advanceToEndOfTrackWhenEndOfRangeReached() throws Exception {
+        when(mediaSource.getSampleFlags()).thenReturn(MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+
+        VideoTrackTranscoder videoTrackTranscoder = new VideoTrackTranscoder(
+                mediaSource,
+                VIDEO_TRACK,
+                mediaTarget,
+                VIDEO_TRACK,
+                targetVideoFormat,
+                renderer,
+                decoder,
+                encoder);
+        videoTrackTranscoder.lastExtractFrameResult = TrackTranscoder.RESULT_END_OF_RANGE_REACHED;
+        videoTrackTranscoder.lastDecodeFrameResult = TrackTranscoder.RESULT_EOS_REACHED;
+        videoTrackTranscoder.lastEncodeFrameResult = TrackTranscoder.RESULT_EOS_REACHED;
+
+        int result = videoTrackTranscoder.processNextFrame();
+
+        verify(decoder, never()).dequeueInputFrame(anyLong());
+        verify(decoder, never()).getInputFrame(anyInt());
+        verify(mediaSource, never()).readSampleData(any(), anyInt());
+        assertThat(videoTrackTranscoder.lastExtractFrameResult, is(TrackTranscoder.RESULT_EOS_REACHED));
+        assertThat(result, is(TrackTranscoder.RESULT_EOS_REACHED));
     }
 
     // endregion: trimming media

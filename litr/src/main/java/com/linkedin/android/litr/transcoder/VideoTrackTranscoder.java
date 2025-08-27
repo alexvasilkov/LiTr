@@ -126,8 +126,12 @@ public class VideoTrackTranscoder extends TrackTranscoder {
         }
         int result = RESULT_FRAME_PROCESSED;
 
+        if (lastExtractFrameResult == RESULT_END_OF_RANGE_REACHED) {
+            lastExtractFrameResult = advanceToNextTrack();
+        }
+
         // extract the frame from the incoming stream and send it to the decoder
-        if (lastExtractFrameResult != RESULT_EOS_REACHED) {
+        if (lastExtractFrameResult != RESULT_EOS_REACHED && lastExtractFrameResult != RESULT_END_OF_RANGE_REACHED) {
             lastExtractFrameResult = extractAndEnqueueInputFrame();
         }
 
@@ -145,7 +149,7 @@ public class VideoTrackTranscoder extends TrackTranscoder {
             result = RESULT_OUTPUT_MEDIA_FORMAT_CHANGED;
         }
 
-        if (lastExtractFrameResult == RESULT_EOS_REACHED
+        if ((lastExtractFrameResult == RESULT_EOS_REACHED || lastExtractFrameResult == RESULT_END_OF_RANGE_REACHED)
             && lastDecodeFrameResult == RESULT_EOS_REACHED
             && lastEncodeFrameResult == RESULT_EOS_REACHED) {
             result = RESULT_EOS_REACHED;
@@ -179,9 +183,8 @@ public class VideoTrackTranscoder extends TrackTranscoder {
                 } else if (sampleTime >= sourceMediaSelection.getEnd()) {
                     frame.bufferInfo.set(0, 0, -1, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
                     decoder.queueInputFrame(frame);
-                    advanceToNextTrack();
-                    extractFrameResult = RESULT_EOS_REACHED;
-                    LogUtils.d(TAG, "EoS reached on the input stream");
+                    extractFrameResult = advanceToNextTrack();
+                    LogUtils.d(TAG, "Selection end reached on the input stream");
                 } else {
                     frame.bufferInfo.set(0, bytesRead, sampleTime, sampleFlags);
                     decoder.queueInputFrame(frame);
@@ -236,7 +239,7 @@ public class VideoTrackTranscoder extends TrackTranscoder {
                     // LogUtils.d(TAG, "Will try getting decoder output later");
                     break;
                 case MediaCodec.INFO_OUTPUT_FORMAT_CHANGED:
-                    sourceVideoFormat = decoder.getOutputFormat();
+                    sourceVideoFormat = addMissingMetadata(sourceVideoFormat, decoder.getOutputFormat());
                     renderer.onMediaFormatChanged(sourceVideoFormat, targetVideoFormat);
                     LogUtils.d(TAG, "Decoder output format changed: " + sourceVideoFormat);
                     break;
@@ -281,8 +284,8 @@ public class VideoTrackTranscoder extends TrackTranscoder {
                     // TODO for now, we assume that we only get one media format as a first buffer
                     MediaFormat outputMediaFormat = encoder.getOutputFormat();
                     if (!targetTrackAdded) {
-                        targetVideoFormat = targetFormat = outputMediaFormat;
-                        targetTrack = mediaMuxer.addTrack(outputMediaFormat, targetTrack);
+                        targetVideoFormat = targetFormat = addMissingMetadata(sourceVideoFormat, outputMediaFormat);
+                        targetTrack = mediaMuxer.addTrack(targetFormat, targetTrack);
                         targetTrackAdded = true;
                         renderer.onMediaFormatChanged(sourceVideoFormat, targetVideoFormat);
                     }

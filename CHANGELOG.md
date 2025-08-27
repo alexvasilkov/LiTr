@@ -1,5 +1,43 @@
 # Change Log
 
+## Version 1.5.7 (2024-08-26)
+
+- Add 16KB page size support, required for Android 15 #277 by @vamshi-dhulipala
+
+## Version 1.5.6 (2024-05-13)
+
+- Release file descriptor even when releasing of android muxer fails #274 by @vamshi-dhulipala
+- Refactors TransformationJob to handle terminal states in a more determisitic fashion #273 by @vamshi-dhulipala
+- Fixes a null pointer crash (Github Issue #269) #271 by @vamshi-dhulipala
+- Fixes a crash in demo app due to a null pointer #270 by @vamshi-dhulipala
+- Fix potential buffer overflow issue #263 by @Nailik
+- Always set TargetFormat value in TrackTransformationInfo object #262 by @vamshi-dhulipala
+- Muxers: integrate native muxer with LiTr #253 by @IanDBird
+- Upgrade Build Tools / SDK / Kotlin #249 by @IanDBird
+- Muxers: Add native muxer implementation #248 by @IanDBird
+- Add missing duration target track metadata to decoder output format #247
+- Muxers: Clean up old artifacts if build fails #246 by @IanDBird
+- Add missing duration target track metadata when adding track to muxer #244
+- Muxers: Add native headers required for building (Alt) #243 by @IanDBird
+- Implement skeleton of native litr-muxers module #239 by @IanDBird
+- Move RecordCamera2Fragment to fragment package #234 by @IanDBird
+
+## Version 1.5.5 (2023-01-25)
+
+- Implement Camera2 support as a MediaSource [#232] (https://github.com/linkedin/LiTr/pull/232) by @IanDBird
+- Add missing duration target track metadata when adding track to muxer [#244] (https://github.com/linkedin/LiTr/pull/244)
+- Add missing duration target track metadata to decoder output format [#247] (https://github.com/linkedin/LiTr/pull/247)
+
+## Version 1.5.4 (2022-12-23)
+
+- Enforce transcoding of incompatible audio track(s) to compatible codecs [#220] (https://github.com/linkedin/LiTr/pull/220)
+- Add TransformationOptions parameter to remove metadata tracks [#221] (https://github.com/linkedin/LiTr/pull/221)
+- Fix for incorrect audio frame presentation time when trimming [#225] (https://github.com/linkedin/LiTr/pull/225)
+- Default to 30 fps target frame rate if parameter is missing [#227] (https://github.com/linkedin/LiTr/pull/227)
+- Set default buffer size when creating VideoRendererInputSurface [#228] (https://github.com/linkedin/LiTr/pull/228)
+- Implement AudioRecord support for audio track [#229] (https://github.com/linkedin/LiTr/pull/229) by @IanDBird
+- Allow transcoders advance to next track or EoS past selection end [#230] (https://github.com/linkedin/LiTr/pull/230)
+
 ## Version 1.5.3 (2022-09-08)
 
 - Implementation of audio overlay filter [#199] (https://github.com/linkedin/LiTr/pull/199)

@@ -31,9 +31,10 @@ public class MediaExtractorMediaSource implements MediaSource {
 
     private final MediaExtractor mediaExtractor = new MediaExtractor();
     private final MediaRange mediaRange;
-    private final long size;
 
     private int orientationHint;
+    private final long size;
+    private final long duration;
 
     public MediaExtractorMediaSource(@NonNull Context context, @NonNull Uri uri) throws MediaSourceException {
         this(context, uri, new MediaRange(0, Long.MAX_VALUE));
@@ -48,10 +49,11 @@ public class MediaExtractorMediaSource implements MediaSource {
             size = TranscoderUtils.getSize(context, uri);
             mediaMetadataRetriever.setDataSource(context, uri);
             setOrientationFrom(mediaMetadataRetriever);
+            setDurationFrom(mediaMetadataRetriever);
         } catch (Throwable ex) {
             throw new MediaSourceException(DATA_SOURCE, uri, ex);
         } finally {
-            mediaMetadataRetriever.release();
+            releaseQuietly(mediaMetadataRetriever);
         }
     }
 
@@ -65,6 +67,7 @@ public class MediaExtractorMediaSource implements MediaSource {
             size = source.getSize();
             mediaMetadataRetriever.setDataSource(source);
             setOrientationFrom(mediaMetadataRetriever);
+            setDurationFrom(mediaMetadataRetriever);
         } catch (Throwable ex) {
             try {
                 source.close();
@@ -72,7 +75,7 @@ public class MediaExtractorMediaSource implements MediaSource {
             }
             throw new MediaSourceException(DATA_SOURCE, null, ex);
         } finally {
-            mediaMetadataRetriever.release();
+            releaseQuietly(mediaMetadataRetriever);
         }
     }
 
@@ -81,6 +84,11 @@ public class MediaExtractorMediaSource implements MediaSource {
         if (rotation != null) {
             orientationHint = Integer.parseInt(rotation);
         }
+    }
+
+    private void setDurationFrom(MediaMetadataRetriever retriever) {
+        String durationStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+        duration = (durationStr != null) ? Long.parseLong(durationStr) : -1L;
     }
 
     @Override
@@ -148,5 +156,18 @@ public class MediaExtractorMediaSource implements MediaSource {
     @Override
     public MediaRange getSelection() {
         return mediaRange;
+    }
+
+    @Override
+    public long getDuration() {
+        return duration;
+    }
+
+    private void releaseQuietly(MediaMetadataRetriever mediaMetadataRetriever) {
+        try {
+            mediaMetadataRetriever.release();
+        } catch (IOException ex) {
+            // Nothing to do.
+        }
     }
 }

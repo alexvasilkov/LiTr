@@ -9,6 +9,8 @@ package com.linkedin.android.litr.transcoder;
 
 import android.media.MediaCodec;
 import android.media.MediaFormat;
+import android.os.Build;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -31,6 +33,7 @@ public abstract class TrackTranscoder {
     public static final int RESULT_FRAME_PROCESSED = 2;
     public static final int RESULT_FRAME_SKIPPED = 3;
     public static final int RESULT_EOS_REACHED = 4;
+    public static final int RESULT_END_OF_RANGE_REACHED = 5;
 
     @NonNull protected final MediaSource mediaSource;
     @NonNull protected final MediaTarget mediaMuxer;
@@ -118,15 +121,29 @@ public abstract class TrackTranscoder {
         return targetFormat;
     }
 
-    protected void advanceToNextTrack() {
+    protected int advanceToNextTrack() {
         // done with this track, advance until track switches to let other track transcoders finish work
         while (mediaSource.getSampleTrackIndex() == sourceTrack) {
             mediaSource.advance();
             if ((mediaSource.getSampleFlags() & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
                 // reached the end of container, no more tracks left
-                return;
+                return RESULT_EOS_REACHED;
             }
         }
+        return RESULT_END_OF_RANGE_REACHED;
+    }
+
+    protected MediaFormat addMissingMetadata(@NonNull MediaFormat sourceMediaFormat, @NonNull MediaFormat targetMediaFormat) {
+        if (!targetMediaFormat.containsKey(MediaFormat.KEY_DURATION)
+                && sourceMediaFormat.containsKey(MediaFormat.KEY_DURATION)) {
+            targetMediaFormat.setLong(MediaFormat.KEY_DURATION, sourceMediaFormat.getLong(MediaFormat.KEY_DURATION));
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT
+                && !targetMediaFormat.containsKey(MediaFormat.KEY_LANGUAGE)
+                && sourceMediaFormat.containsKey(MediaFormat.KEY_LANGUAGE)) {
+            targetMediaFormat.setString(MediaFormat.KEY_LANGUAGE, sourceMediaFormat.getString(MediaFormat.KEY_LANGUAGE));
+        }
+        return targetMediaFormat;
     }
 
 }

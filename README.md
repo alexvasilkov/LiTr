@@ -13,8 +13,11 @@ In its current iteration LiTr supports:
 - positioning source video frame arbitrarily onto target video frame
 - trimming video/audio
 - creating "empty" video, or a video out of single image
+- recording audio
 - creating preview bitmap(s) (with filters applied) at specific timestamp(s) (filmstrip)
 - writing raw audio into WAV container
+- record video using camera2 API
+- use ffmpeg-muxers (opt-in) to write into containers MediaCodec stack doesn't (yet) support, such as fragmented MP4
 
 By default, LiTr uses Android MediaCodec stack for hardware accelerated decoding/encoding and OpenGL for rendering. It also uses MediaExtractor and MediaMuxer to read/write media.
 
@@ -23,7 +26,7 @@ By default, LiTr uses Android MediaCodec stack for hardware accelerated decoding
 Simply grab via Gradle:
 
 ```groovy
- implementation 'com.linkedin.android.litr:litr:1.5.3'
+ implementation 'com.linkedin.android.litr:litr:1.5.7'
 ```
 ...or Maven:
 
@@ -31,7 +34,7 @@ Simply grab via Gradle:
 <dependency>
   <groupId>com.linkedin.android.litr</groupId>
   <artifactId>litr</artifactId>
-  <version>1.5.3</version>
+  <version>1.5.7</version>
 </dependency>
 
 ```
@@ -129,7 +132,7 @@ LiTr now has 40 new GPU accelerated video filters ported from [Mp4Composer-andro
 All video/audio filters live in "filter pack" library, which is available via Gradle:
 
 ```groovy
- implementation 'com.linkedin.android.litr:litr-filters:1.5.3'
+ implementation 'com.linkedin.android.litr:litr-filters:1.5.7'
 ```
 ...or Maven:
 
@@ -137,7 +140,7 @@ All video/audio filters live in "filter pack" library, which is available via Gr
 <dependency>
     <groupId>com.linkedin.android.litr</groupId>
     <artifactId>litr-filters</artifactId>
-    <version>1.5.3</version>
+    <version>1.5.7</version>
 </dependency>
 
 ```
@@ -195,6 +198,7 @@ This project is licensed under the BSD 2-Clause License - see the [LICENSE](LICE
 * A huge thank you to [ypresto](https://github.com/ypresto/) for his pioneering work on [android-transcoder](https://github.com/ypresto/android-transcoder) project, which was an inspiration and heavy influence on LiTr
 * A special thank you to [MasayukiSuda](https://github.com/MasayukiSuda) for his work on [Mp4Composer-android](https://github.com/MasayukiSuda/Mp4Composer-android) project, whose filters now power LiTr, and for his work on [ExoPlayerFilter](https://github.com/MasayukiSuda/ExoPlayerFilter) project which was a foundation for filter preview functionality in LiTr.
 * A special thank you to [android-gpuimage](https://github.com/cats-oss/android-gpuimage) project for amazing filter collection, which have been ported into LiTr
+* A special thank you to [IanDBird](https://github.com/IanDBird) for his phenomenal work on making LiTr capable of working as a video/audio recorder, as well as his ongoing contributions to LiTr
 * A thank you to Google's AOSP CTS team for writing Surface to Surface rendering implementation in OpenGL, which became a foundation for GlRenderer in LiTr
 * A thank you to Google [Oboe](https://github.com/google/oboe) project for high quality audio resampling implementation, which became a foundation of audio processing in LiTr
 * A shout out to my awesome colleagues Amita Sahasrabudhe, Long Peng, Keerthi Korrapati and Vasiliy Kulakov for contributions and code reviews
